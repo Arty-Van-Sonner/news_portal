@@ -1,2 +1,2 @@
-# news_portal
-News Portal
+# News Portal
+Learning project
