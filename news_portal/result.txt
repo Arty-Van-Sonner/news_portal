@@ -1,0 +1,233 @@
+Windows PowerShell
+(C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
+
+Попробуйте новую кроссплатформенную оболочку PowerShell (https://aka.ms/pscore6)
+
+PS D:\Users\Artyom\Documents\Learning_development\skillfactiry\learning_development\python\news_portal> python -m venv venv
+PS D:\Users\Artyom\Documents\Learning_development\skillfactiry\learning_development\python\news_portal> venv\scripts\activa
+
+Не удается проверить издателя. Вы действительно хотите запустить эту программу?
+Файл D:\Users\Artyom\Documents\Learning_development\skillfactiry\learning_development\python\news_portal\venv\scripts\Activ
+доверенным для данной системы. Выполняйте сценарии только от доверенных издателей.
+(venv) PS D:\Users\Artyom\Documents\Learning_development\skillfactiry\learning_development\python\news_portal> pip install 
+Collecting django
+  Using cached Django-4.2.15-py3-none-any.whl (8.0 MB)
+Collecting asgiref<4,>=3.6.0
+  Using cached asgiref-3.8.1-py3-none-any.whl (23 kB)
+Collecting sqlparse>=0.3.1
+  Using cached sqlparse-0.5.1-py3-none-any.whl (44 kB)
+Collecting tzdata; sys_platform == "win32"
+(venv) PS D:\Users\Artyom\Documents\Learning_development\skillfactiry\learning_development\python\news_portal\news_portal> python manage.py migrate       
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, sessions
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying auth.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+
+(venv) PS D:\Users\Artyom\Documents\Learning_development\skillfactiry\learning_development\python\news_portal\news_portal> python manage.py makemigrations
+Migrations for 'news':
+  news\migrations\0001_initial.py
+    - Create model Author        
+    - Create model Category      
+    - Create model Post
+    - Create model Comment
+(venv) PS D:\Users\Artyom\Documents\Learning_development\skillfactiry\learning_development\python\news_portal\news_portal> python manage.py migrate       
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, news, sessions
+Running migrations:
+  Applying news.0001_initial... OK
+(venv) PS D:\Users\Artyom\Documents\Learning_development\skillfactiry\learning_development\python\news_portal\news_portal> python manage.py createsuperuser
+Username (leave blank to use 'artyom'): admin
+Email address:
+Password:
+Password (again):
+This password is too common.
+This password is entirely numeric.
+Bypass password validation and create user anyway? [y/N]: y
+Superuser created successfully.
+(venv) PS D:\Users\Artyom\Documents\Learning_development\skillfactiry\learning_development\python\news_portal\news_portal> python manage.py shell
+Python 3.9.1 (tags/v3.9.1:1e5d33e, Dec  7 2020, 17:08:21) [MSC v.1927 64 bit (AMD64)] on win32
+Type "help", "copyright", "credits" or "license" for more information.
+(InteractiveConsole)
+# ++++++++++++++ task 1 ++++++++++++++
+>>> from django.contrib.auth.models import User
+>>> User.objects.create_user(username = 'user1', is_superuser = False)   
+<User: user1>
+>>> User.objects.create_user(username = 'user2', is_superuser = False) 
+<User: user2>
+>>> User.objects.create_user(username = 'user3', is_superuser = False) 
+<User: user3>
+# ------------------------------------
+# ++++++++++++++ task 2 ++++++++++++++
+>>> users = User.objects.filter(username__contains = 'user')
+>>> users
+<QuerySet [<User: user1>, <User: user2>, <User: user3>]>
+>>> from news.models import *
+>>> authors = [Author.objects.create(user = user) for user in users]
+>>> authors
+# ------------------------------------
+# ++++++++++++++ task 3 ++++++++++++++
+[<Author: Author object (1)>, <Author: Author object (2)>, <Author: Author object (3)>]
+>>> list_category_names = ['About movie', 'About politics', 'About sports', 'About cars']
+>>> categories = [Category.objects.create(name = name) for name in list_category_names]
+>>> categories
+[<Category: Category object (1)>, <Category: Category object (2)>, <Category: Category object (3)>, <Category: Category object (4)>]
+# ------------------------------------
+# ++++++++++++++ task 4 ++++++++++++++
+>>> articles = []
+>>> news = []
+>>> articles.append(Post.objects.create(author = authors[0], type = 'A', category = categories[0], title = 'The Fountain (2006): Fighting the Inevitable', text = 'In 2006, director Darren Aronofsky released his third film, The Fountain. Coming off strong 
+from his previous work on Pi (1998) and Requiem for a Dream (2000), this time he took a drastically different approach to his storytelling. Abandoning the provocative and fast-edited style of his two previous films, he approached this new film with a more assured and slow pace.\nIt is his most philosophical film for sure, and arguably his most personal. He interweaves themes about religion (one of his favorites) — Christianity and Buddhism — and general philosophy with heavy references to the Mayan culture. But the main theme — the connecting tissue of the film — is the topic of death, how we deal with this inevitability, and what impact the approaching loss can have on us.',))
+>>> articles.append(Post.objects.create(author = authors[1], type = 'A', category = categories[3], title = 'The 10 Biggest Problems With Electric Cars', text = 'The world has a strange infatuation with cars. That is part of the reason why the electric car has become the poster child for the fight against climate change, despite its rather limited potential to avoid CO2 emissions.\nBehind the rapid growth in battery electric vehicle (BEV) sales lie a wide range of supporting policies. And behind these policies are governments that want to tap every last bit of marketing value from this highly visible climate action poster child. This is why pure BEV companies are now worth as much as the entire legacy auto industry, even though these companies (mainly Tesla) sell only about 1% of global light-duty vehicles.',))
+>>> news.append(Post.objects.create(author = authors[1], type = 'N', category = categories[3], title = 'Protests over post-vaccination deaths spread across South Korea', text = 'One of the most vaccinated nations on earth is seeing increased public pushback over Covid-19 jabs, as demonstrators in South Korea are demanding accountability for deaths that they blame on the shots.\nProtesters gathered in Busan on Sunday after a similar rally was held in Seoul on Christmas Day. Aggrieved demonstrators held up large 
+portraits of deceased family members – like those typically displayed at funerals in South Korea – and testified as to how their loved ones died soon after being vaccinated against Covid-19.\nDozens of funeral portraits were displayed at Saturday’s demonstration at the government complex in Seoul. Protesters called for the government to identify the causes of adverse.\nMore than 1,000 South Koreans died shortly after receiving Covid-19 shots, but the government has confirmed a causal connection to vaccines in only a 
+few of those cases. In one of the rare instances where a serious adverse reaction was acknowledged, a nursing assistant was recognized in August as a victim of an industrial accident and awarded government benefits after suffering paralysis in the wake of receiving AstraZeneca’s Covid-19 shot.\nJust one week into its rollout of Covid-19 vaccines in late February and early March, South Korea’s Disease Control and Prevention Agency said that seven people had died and 24 had reported serious adverse reactions after receiving their AstraZeneca jabs. The government reportedly began an investigation in August after a teenager with no underlying health conditions died following inoculation with the Pfizer-BioNTech Covid-19 vaccine.\nAn association called the Covid-19 Vaccine Victims and Families Council has held rallies in several South Korean cities. Demonstrators on Sunday marched from Busan City Hall to Busan National University of Education, Yonhap News reported.\nVaccine safety may become a contentious issue in South Korea’s presidential election. The opposition People’s Power Party last week held a public hearing on vaccine side effects, inviting alleged victims and their family members to offer suggestions for support measures that presidential candidate Yoon Seok-yeol may adopt.\nKim Jong-in, the party’s campaign chairman, reportedly accused President Moon Jae-in’s administration of being indifferent on vaccine damages. The administration has pledged to compensate victims of vaccine side effects, but it’s also the arbiter of whether injuries and deaths are attributed to the jabs. “I think the people have reached a point where they can’t trust the government,” Kim said.\nSouth Korea typically has some of the world’s highest jab rates for various vaccines, and the Covid-19 shots have been no exception. About 83% of South Koreans have been vaccinated against Covid-19, easily the highest rate among G20 nations.',))
+# ------------------------------------
+# ++++++++++++++ task 5 ++++++++++++++
+>>> PostCategory.objects.create(post = articles[0], category = categories[0])
+<PostCategory: PostCategory object (1)>
+>>> PostCategory.objects.create(post = articles[0], category = categories[1]) 
+<PostCategory: PostCategory object (2)>
+>>> PostCategory.objects.create(post = articles[0], category = categories[2]) 
+<PostCategory: PostCategory object (3)>
+>>> PostCategory.objects.create(post = articles[1], category = categories[3]) 
+<PostCategory: PostCategory object (4)>
+>>> PostCategory.objects.create(post = articles[1], category = categories[1]) 
+<PostCategory: PostCategory object (5)>
+>>> PostCategory.objects.create(post = news[0], category = categories[1]) 
+<PostCategory: PostCategory object (6)>
+>>> PostCategory.objects.create(post = news[0], category = categories[2]) 
+<PostCategory: PostCategory object (7)>
+# ------------------------------------
+# ++++++++++++++ task 6 ++++++++++++++
+>>> comments = []
+>>> comments.append(Comment.objects.create(post = news[0], user = users[0], text = 'Cool articale. I really liked'))
+>>> comments.append(Comment.objects.create(post = news[0], user = users[1], text = 'It is very interestingly written'))
+>>> comments.append(Comment.objects.create(post = news[0], user = users[3], text = 'I wonder who could have written it?')) 
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+  File "D:\Users\Artyom\Documents\Learning_development\skillfactiry\learning_development\python\news_portal\venv\lib\site-packages\django\db\models\query.py", line 432, in __getitem__
+    return self._result_cache[k]
+IndexError: list index out of range
+>>> comments.append(Comment.objects.create(post = articles[0], user = users[0], text = 'How do I contact the author?'))
+>>> comments.append(Comment.objects.create(post = articles[0], user = users[1], text = 'What kind of incompetence wrote this?'))
+>>> comments.append(Comment.objects.create(post = articles[0], user = users[2], text = 'Are you normal?'))
+>>> comments.append(Comment.objects.create(post = articles[1], user = users[0], text = 'The author described the presented topic very accurately and competently'))
+>>> comments.append(Comment.objects.create(post = articles[1], user = users[1], text = "It's a masterpiece"))
+>>> comments.append(Comment.objects.create(post = articles[1], user = users[2], text = "Who wrote this? I want to shake his hand."))
+# ------------------------------------
+# ++++++++++++++ task 7 ++++++++++++++
+>>> articles[0].like()
+>>> articles[0].like()
+>>> articles[0].like()
+>>> articles[0].like()
+>>> articles[0].like()                    
+>>> articles[0].dislike() 
+>>> articles[0].dislike()
+>>> articles[0].dislike()
+>>> articles[0].dislike()
+>>> articles[0].dislike()
+>>> articles[0].dislike()
+>>> articles[0].dislike()
+>>> articles[0].dislike()
+>>> articles[0].dislike()
+>>> articles[0].dislike()
+>>> articles[0].like()    
+>>> articles[0].like()
+>>> articles[0].like()
+>>> articles[0].like()
+>>> articles[0].like()
+>>> articles[0].like()
+>>> articles[0].like()
+>>> articles[0].like()
+>>> articles[1].like()  
+>>> articles[1].like()
+>>> articles[1].like()
+>>> articles[1].like()
+>>> articles[1].like()
+>>> articles[1].like()
+>>> articles[1].like()
+>>> articles[1].like()
+>>> articles[1].like()
+>>> articles[1].like()
+>>> articles[1].dislike() 
+>>> articles[1].dislike()
+>>> articles[1].dislike()
+>>> articles[1].dislike()
+>>> articles[1].dislike()
+>>> news[0].like()        
+>>> news[0].like()
+>>> news[0].like()
+>>> news[0].like()
+>>> news[0].like()
+>>> news[0].like()
+>>> news[0].like()
+>>> news[0].like()
+>>> news[0].like()
+>>> news[0].like()
+>>> news[0].like()
+>>> news[0].like()
+>>> news[0].like()
+>>> news[0].like()
+>>> news[0].dislike()
+>>> news[0].dislike()
+>>> news[0].dislike()
+>>> news[0].dislike()
+>>> news[0].dislike()
+>>> news[0].dislike()      
+>>> [comment.dislike() for i in range(5) for comment in comments]
+[None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
+>>> from random import randint
+>>> [comment.like() for i in range(randint(2, 25)) for comment in comments] 
+[None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
+>>> [comment.dislike() for i in range(randint(2, 10)) for comment in comments] 
+[None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
+>>> [article.dislike() for i in range(randint(2, 10)) for article in articles]
+[None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
+>>> [article.like() for i in range(randint(2, 1000)) for article in articles]    
+[None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
+>>> [new.like() for i in range(randint(2, 1000)) for new in news]             
+[None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
+# ------------------------------------
+# ++++++++++++++ task 8 ++++++++++++++
+>>> [author.update_rating() for author in authors]
+[None, None, None]
+# ------------------------------------
+# ++++++++++++++ task 9 ++++++++++++++
+>>> authors = authors.order_by('-rating')
+>>> authors_values = authors.values('user', 'rating')
+>>> print(User.objects.get(id = authors_values[0]['user']).username, authors_values[0]['rating'])
+user2 1415
+# ------------------------------------
+# ++++++++++++++ task 10 ++++++++++++++
+>>> articles = articles.order_by('-rating')
+>>> article = articles[0]
+>>> print(f'creation date: {article.creation_date}', f'username: {article.author.user.username}', f'rating: {article.rating}', f'title: {article.title}', f'preview: {article.preview()}', sep = ';\n')
+creation date: 2024-08-27 19:42:56.860223+00:00;
+username: user2;
+rating: 137;
+title: The 10 Biggest Problems With Electric Cars;
+preview: The world has a strange infatuation with cars. That is part of the reason why the electric car has become the poster child f...
+# ------------------------------------
+# ++++++++++++++ task 11 ++++++++++++++
+>>> article_comments = Comment.objects.filter(post = article)
+>>> test = [print(f'creation date: {article_comment.creation_date}', f'user: {article_comment.user.username}', f'rating: {article_comment.rating}', f'text: {article_comment.text}', sep = '; ') for article_comment in article_comments]
+creation date: 2024-08-27 20:25:59.470429+00:00; user: user1; rating: 27; text: The author described the presented topic very accurately and competently
+creation date: 2024-08-27 20:27:18.753884+00:00; user: user2; rating: 27; text: It's a masterpiece
+creation date: 2024-08-27 20:28:03.279170+00:00; user: user3; rating: 26; text: Who wrote this? I want to shake his hand.
+# ------------------------------------
+>>> exit()
+(venv) PS D:\Users\Artyom\Documents\Learning_development\skillfactiry\learning_development\python\news_portal\news_portal> cd ../
+(venv) PS D:\Users\Artyom\Documents\Learning_development\skillfactiry\learning_development\python\news_portal> pip freeze > requirements.txt 
