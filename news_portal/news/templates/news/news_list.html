@@ -1,0 +1,39 @@
+{% extends 'default.html' %}
+
+{% load custom_filters %}
+
+{% block title %}
+News
+{% endblock title %}
+
+{% block h1 %}
+News
+{% endblock h1 %}
+
+{% block content %}
+   <!-- <h1>Все товары</h1> -->
+   <!-- Вот так выглядело использование переменной и фильтра -->
+   <!-- <h3>{{ time_now|date:'M d Y' }}</h3> -->
+   <!-- А вот так мы используем наш тег-->
+
+   <hr>
+   {% if news %}
+       
+
+            {% for news_article in news %}
+            <div class="article">
+                <a href="{{news_article.id}}/"><h3 class="article__title">{{ news_article.title|censor }} (rating {{news_article.rating|censor }})</h3></a>
+                <table class="article__table">
+                    <tr>
+                        <td class="article__left-cell">{{ news_article.creation_date|date:'d.m.Y' }}</td>
+                        <td class="article__right-cell">{{ news_article.author|censor }}</td>
+                    </tr>
+                </table>
+                <p class="article__text">{{ news_article.text|censor|truncatechars:20 }}</p>
+                <hr />
+            </div>
+            {% endfor %}
+   {% else %}
+       <h2>Новостей нет!</h2>
+   {% endif %}
+{% endblock content %}

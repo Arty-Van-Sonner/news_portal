@@ -1,13 +1,28 @@
 from django.db import models
 
 from django.contrib.auth.models import User
+# import SQLAlchemy
 
 # Create your models here.
 list_of_types_with_likes = []
 
+class CustomUser(models.Model):
+    male = 'm'
+    female = 'f'
+    GENDERS = [
+        (male, 'male (man)'),
+        (female, 'female (woman)'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete = models.CASCADE, unique = True, db_column = 'user_id', name = 'user')
+    name = models.CharField(max_length = 128, db_column = 'name', name = 'name')
+    family = models.CharField(max_length = 128, db_column = 'family', name = 'family')
+    age = models.IntegerField(default = 0, db_column = 'age', name = 'age')
+    gender = models.CharField(max_length = 1, choices = GENDERS, db_column = 'gender', name = 'gender')
+
 class Author(models.Model):
-    __user = models.ForeignKey(User, on_delete = models.CASCADE, db_column = 'user_id', name = 'user')
-    __rating = models.IntegerField(default = 0, db_column = 'rating', name = 'rating')
+    custom_user = models.ForeignKey(CustomUser, on_delete = models.CASCADE, db_column = 'custom_user_id', name = 'custom_user')
+    rating = models.IntegerField(default = 0, db_column = 'rating', name = 'rating')
 
     def update_rating(self, save_object = True):
         posts = Post.objects.filter(author = self)
@@ -28,27 +43,32 @@ class Author(models.Model):
         if save_object:
             self.save()
 
+    def __str__(self) -> str:
+        name = self.custom_user.name[0]
+        family = self.custom_user.family
+        return f'{family} {name}.'
+
 class Category(models.Model):
-    __name = models.CharField(max_length = 255, unique = True, db_column = 'name', name = 'name')
+    name = models.CharField(max_length = 255, unique = True, db_column = 'name', name = 'name')
 
 class Post(models.Model):
-    __article = 'A'
-    __news = 'N'
-    __POST_TYPES = [
-        (__article, 'Article'),
-        (__news, 'News'),
+    article = 'A'
+    news = 'N'
+    POST_TYPES = [
+        (article, 'Article'),
+        (news, 'News'),
     ]
 
-    __author = models.ForeignKey(Author, on_delete = models.CASCADE, db_column = 'author_id', name = 'author')
-    __type = models.CharField(max_length = 1, choices = __POST_TYPES, db_column = 'type', name = 'type')
-    __creation_date = models.DateTimeField(auto_now_add = True, db_column = 'creation_date', name = 'creation_date')
-    __category = models.ForeignKey(Category, on_delete = models.CASCADE, db_column = 'category_id', name = 'category')
-    __title = models.CharField(max_length = 255, db_column = 'title', name = 'title')
-    __text = models.TextField(db_column = 'text', name = 'text')
-    __rating = models.IntegerField(default = 0, db_column = 'rating', name = 'rating')
-    __last_update_date = models.DateTimeField(auto_now = True, db_column = 'last_update_date', name = 'last_update_date')
-    __likes = models.PositiveIntegerField(default = 0, db_column = 'likes', name = 'likes')
-    __dislikes = models.PositiveIntegerField(default = 0, db_column = 'dislikes', name = 'dislikes') 
+    author = models.ForeignKey(Author, on_delete = models.CASCADE, db_column = 'author_id', name = 'author')
+    type = models.CharField(max_length = 1, choices = POST_TYPES, db_column = 'type', name = 'type')
+    creation_date = models.DateTimeField(auto_now_add = True, db_column = 'creation_date', name = 'creation_date')
+    category = models.ForeignKey(Category, on_delete = models.CASCADE, db_column = 'category_id', name = 'category')
+    title = models.CharField(max_length = 255, db_column = 'title', name = 'title')
+    text = models.TextField(db_column = 'text', name = 'text')
+    rating = models.IntegerField(default = 0, db_column = 'rating', name = 'rating')
+    last_update_date = models.DateTimeField(auto_now = True, db_column = 'last_update_date', name = 'last_update_date')
+    likes = models.PositiveIntegerField(default = 0, db_column = 'likes', name = 'likes')
+    dislikes = models.PositiveIntegerField(default = 0, db_column = 'dislikes', name = 'dislikes') 
 
     def like(self, save = True):
         self.__like_dislike(True)
@@ -72,18 +92,18 @@ class Post(models.Model):
         return self.text[:124] + '...'
 
 class PostCategory(models.Model):
-    __post = models.ForeignKey(Post, on_delete = models.CASCADE, db_column = 'post_id', name = 'post')
-    __category = models.ForeignKey(Category, on_delete = models.CASCADE, db_column = 'category_id', name = 'category')
+    post = models.ForeignKey(Post, on_delete = models.CASCADE, db_column = 'post_id', name = 'post')
+    category = models.ForeignKey(Category, on_delete = models.CASCADE, db_column = 'category_id', name = 'category')
 
 class Comment(models.Model):
-    __post = models.ForeignKey(Post, on_delete = models.CASCADE, db_column = 'post_id', name = 'post')
-    __user = models.ForeignKey(User, on_delete = models.CASCADE, db_column = 'user_id', name = 'user')
-    __text = models.TextField(db_column = 'text', name = 'text')
-    __creation_date = models.DateTimeField(auto_now_add = True, db_column = 'creation_date', name = 'creation_date')
-    __rating = models.IntegerField(default = 0, db_column = 'rating', name = 'rating')
-    __last_update_date = models.DateTimeField(auto_now = True, db_column = 'last_update_date', name = 'last_update_date')
-    __likes = models.PositiveIntegerField(default = 0, db_column = 'likes', name = 'likes')
-    __dislikes = models.PositiveIntegerField(default = 0, db_column = 'dislikes', name = 'dislikes')
+    post = models.ForeignKey(Post, on_delete = models.CASCADE, db_column = 'post_id', name = 'post')
+    user = models.ForeignKey(User, on_delete = models.CASCADE, db_column = 'user_id', name = 'user')
+    text = models.TextField(db_column = 'text', name = 'text')
+    creation_date = models.DateTimeField(auto_now_add = True, db_column = 'creation_date', name = 'creation_date')
+    rating = models.IntegerField(default = 0, db_column = 'rating', name = 'rating')
+    last_update_date = models.DateTimeField(auto_now = True, db_column = 'last_update_date', name = 'last_update_date')
+    likes = models.PositiveIntegerField(default = 0, db_column = 'likes', name = 'likes')
+    dislikes = models.PositiveIntegerField(default = 0, db_column = 'dislikes', name = 'dislikes')
     
     def like(self, save = True):
         self.__like_dislike(True)

@@ -1,0 +1,31 @@
+{% extends 'default.html' %}
+
+{% load custom_filters %}
+{% load custom_tags %}
+
+{% block title %}
+{{ post.title|censor }}
+{% endblock title %}
+
+{% block h1 %}
+{{ post.title|censor }}
+{% endblock h1 %}
+
+{% block content %}
+   <!-- <h1>Все товары</h1> -->
+   <!-- Вот так выглядело использование переменной и фильтра -->
+   <!-- <h3>{{ time_now|date:'M d Y' }}</h3> -->
+   <!-- А вот так мы используем наш тег-->
+
+   <hr>
+    <div class="article">
+        <table class="article__table">
+            <tr>
+                <td class="article__left-cell">{{ post.creation_date|date:'d.m.Y' }}</td>
+                <td class="article__right-cell">{{ post.author|censor }}</td>
+            </tr>
+        </table>
+        <p class="article__text">{{ post.text|censor }}</p>
+        <hr />
+    </div>
+{% endblock content %}
