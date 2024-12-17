@@ -1,0 +1,27 @@
+{% extends 'default.html' %}
+
+{% load custom_filters %}
+{% load custom_tags %}
+
+{% block title %}
+{{ form_title }}
+{% endblock title %}
+
+{% block content %}
+<h1>{{ form_title }}</h1>
+<hr>
+<div class="article">
+    <table class="article__table">
+        <tr>
+            <td class="article__left-cell">{{ post.creation_date|date:'d.m.Y' }}</td>
+            <td class="article__right-cell">{{ post.author|censor }}</td>
+        </tr>
+    </table>
+    <p class="article__text">{{ post.text|censor }}</p>
+    <hr />
+</div>
+<form action="" method="post">
+    {% csrf_token %}
+    <input type="submit" value="Delete" class="btn btn-primary"/>
+</form>
+{% endblock content %}

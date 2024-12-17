@@ -1,33 +1,155 @@
 from django.shortcuts import render
 
+from django.urls import reverse_lazy
+from django.http.request import QueryDict
+
 from django.views.generic import *
 from .models import *
 from django.shortcuts import get_object_or_404
 
+from .forms import *
+
+from .filters import *
+import inspect
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# from django.forms.widgets import 
 
 class NewsList(ListView):
     '''
     
     '''
     model = Post
-    context_object_name = 'news'
-    template_name = 'news/news_list.html'
+    context_object_name = 'post'
+    template_name = 'news/post_list.html'
+    paginate_by = 10
 
     def get_queryset(self):
-        return Post.objects.filter(type = 'N').order_by('-creation_date')
+        queryset = Post.objects.filter(type = 'N')
+        return queryset
 
-class NewsDetail(DetailView):
+    def get_context_data(self, **kwargs):
+       context = super().get_context_data(**kwargs)
+       context['form_title'] = 'News'
+       context['posts_list_is_empty'] = 'There is no news'
+       return context
+
+class ArticleList(ListView):
+    '''
+    
+    '''
     model = Post
     context_object_name = 'post'
-    template_name = 'news/news_detail.html'
+    template_name = 'news/post_list.html'
+    paginate_by = 10
 
-# class PostCreat(CreateView):
-#     model = Post
-#     fields = '__all__'
+    def get_queryset(self):
+        queryset = Post.objects.filter(type = 'A')
+        return queryset
 
-# class MyForm(FormView):
-#     # form_class = myform
-#     success_url = '/success/'
-    
-#     def form_valid(self, form):
-#         return super().form_invalid(form)
+    def get_context_data(self, **kwargs):
+       context = super().get_context_data(**kwargs)
+       context['form_title'] = 'Articles'
+       context['posts_list_is_empty'] = 'There is no articles'
+       return context
+
+class PostDetail(DetailView):
+    model = Post
+    context_object_name = 'post'
+    template_name = 'news/post_detail.html'
+
+class NewsSearch(ListView):
+    model = Post
+    context_object_name = 'news'
+    template_name = 'news/news_search.html'
+    queryset_is_empty = True
+    parameters_are_set = False
+
+    def get_queryset(self): 
+        return self.processing_queryset(filter_class = NewFilter, type = 'N')
+
+    def processing_queryset(self, filter_class, **kwargs):
+        parametrs = self.request.GET.copy()
+        queryset = Post.objects.none()
+        if len(parametrs) > 0:
+            if len(kwargs) == 0:
+                queryset = Post.objects.all()
+            else:
+                queryset = Post.objects.filter(**kwargs)
+            self.parameters_are_set = True
+        else:
+            self.parameters_are_set = False
+        self.filterset = filter_class(self.request.GET, queryset)
+        queryset = self.filterset.qs
+        if len(queryset) == 0:
+            self.queryset_is_empty = True
+        else:
+            self.queryset_is_empty = False
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['filterset'] = self.filterset
+        context['queryset_is_empty'] = self.queryset_is_empty
+        context['parameters_are_set'] = self.parameters_are_set
+        return context
+
+class PostSearch(NewsSearch):
+    '''
+    '''
+    # filter_class = PostFilter  
+    def get_queryset(self):
+        return super().processing_queryset(filter_class = PostFilter)
+
+class NewsCreate(CreateView):
+    # Указываем нашу разработанную форму
+    form_class = NewsForm
+    # модель товаров
+    model = Post
+    # и новый шаблон, в котором используется форма.
+    template_name = 'news/post_edit.html'
+    # context_object_name = 'post'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form_title'] = 'Create new news'
+        return context
+
+class ArticleCreate(CreateView):
+    # Указываем нашу разработанную форму
+    form_class = ArticleForm
+    # модель товаров
+    model = Post
+    # и новый шаблон, в котором используется форма.
+    template_name = 'news/post_edit.html'
+    # context_object_name = 'post'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form_title'] = 'Create new article'
+        return context
+
+# Добавляем представление для изменения товара.
+class PostUpdate(UpdateView):
+    form_class = PostForm
+    model = Post
+    template_name = 'news/post_edit.html'
+    context_object_name = 'post'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form_title'] = f'{ context["post"].title } (edit)'
+        return context
+
+# Представление удаляющее товар.
+class PostDelete(DeleteView):
+    model = Post
+    template_name = 'news/post_delete.html'
+    success_url = reverse_lazy('news_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form_title'] = f'Delete {context["post"].title}?'
+        return context

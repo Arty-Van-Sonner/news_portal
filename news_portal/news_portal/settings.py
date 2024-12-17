@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 
     'news',
     'censor',
+    'django_filters',
 ]
 
 MIDDLEWARE = [

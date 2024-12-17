@@ -1,6 +1,8 @@
 from django.db import models
 
 from django.contrib.auth.models import User
+
+from django.urls import reverse
 # import SQLAlchemy
 
 # Create your models here.
@@ -51,6 +53,9 @@ class Author(models.Model):
 class Category(models.Model):
     name = models.CharField(max_length = 255, unique = True, db_column = 'name', name = 'name')
 
+    def __str__(self) -> str:
+        return f'{self.name} ({self.id})'
+
 class Post(models.Model):
     article = 'A'
     news = 'N'
@@ -90,6 +95,12 @@ class Post(models.Model):
 
     def preview(self):
         return self.text[:124] + '...'
+
+    def get_absolute_url(self):
+        if self.type == self.POST_TYPES[0][0]:
+            return reverse('articles_detail', args=[str(self.id)])
+        else:
+            return reverse('news_detail', args=[str(self.id)])
 
 class PostCategory(models.Model):
     post = models.ForeignKey(Post, on_delete = models.CASCADE, db_column = 'post_id', name = 'post')

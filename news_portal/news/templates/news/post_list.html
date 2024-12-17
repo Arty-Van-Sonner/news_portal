@@ -1,0 +1,51 @@
+{% extends 'default.html' %}
+
+{% load custom_filters %}
+{% load custom_tags %}
+
+{% block title %}
+{{ form_title }}
+{% endblock title %}
+
+{% block h1 %}
+{{ form_title }}
+{% endblock h1 %}
+
+{% block content %}
+   <hr>
+   {% if post %}
+        {% for news_article in post %}
+        <div class="article">
+            <a href="{{news_article.id}}/"><h3 class="article__title">{{ news_article.title|censor }} (rating {{news_article.rating|censor }})</h3></a>
+            <table class="article__table">
+                <tr>
+                    <td class="article__left-cell">{{ news_article.creation_date|date:'d.m.Y' }}</td>
+                    <td class="article__right-cell">{{ news_article.author|censor }}</td>
+                </tr>
+            </table>
+            <p class="article__text">{{ news_article.text|censor|truncatechars:20 }}</p>
+            <hr />
+        </div>
+        {% endfor %}
+        
+        {% if page_obj.has_previous %}
+            <a href="?{% url_replace page=1 %}">1</a>
+            {% if page_obj.previous_page_number != 1 %}
+                ...
+                <a href="?{% url_replace page=page_obj.previous_page_number %}">{{ page_obj.previous_page_number }}</a>
+            {% endif %}
+        {% endif %}
+        
+        {{ page_obj.number }}
+
+        {% if page_obj.has_next %}
+            <a href="?{% url_replace page=page_obj.next_page_number %}">{{ page_obj.next_page_number }}</a>
+            {% if paginator.num_pages != page_obj.next_page_number %}
+                ...
+                <a href="?{% url_replace page=page_obj.paginator.num_pages %}">{{ page_obj.paginator.num_pages }}</a>
+            {% endif %}
+        {% endif %}
+    {% else %}
+        <h2>{{ posts_list_is_empty }}</h2>
+    {% endif %}
+{% endblock content %}

@@ -29,7 +29,6 @@ class Censor(Profanity):
             text = text[start_idx_of_next_word:]
 
         # Splitting each word in the text to compare with censored words
-        # print(text)
         for index, char in iter(enumerate(text)):
             if index < skip_index:
                 continue
@@ -51,7 +50,6 @@ class Censor(Profanity):
             contains_swear_word, end_index = any_next_words_form_swear_word(
                 cur_word, next_words_indices, self.CENSOR_WORDSET
             )
-            # print(contains_swear_word)
             if contains_swear_word:
                 cur_word = get_replacement_for_swear_word(cur_word, censor_char)
                 skip_index = end_index
@@ -61,7 +59,6 @@ class Censor(Profanity):
             # If the current a swear word
             if cur_word.lower() in self.CENSOR_WORDSET:
                 cur_word = get_replacement_for_swear_word(cur_word, censor_char)
-                # print(cur_word)
             censored_text += cur_word + char
             cur_word = ""
 

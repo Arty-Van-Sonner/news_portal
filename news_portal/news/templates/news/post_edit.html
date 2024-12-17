@@ -1,0 +1,25 @@
+<!--  наследуемся от шаблона default.html, который мы создавали для flatpages -->
+{% extends 'default.html' %}
+
+<!-- Название у нас будет post -->
+{% block title %}
+{{ form_title }}
+{% endblock title %}
+
+<!-- В контенте на странице мы выводим сам товар, идентификатор которого был передан в url -->
+{% block content %}
+<h1>{{ form_title }}</h1>
+<hr>
+<form action="" method="post">
+    {% csrf_token %}
+    {% for input in form %}
+        <div class="mb-3">
+            {% if input.name != 'type' %}
+                <label for="{{ input.auto_id }}" class="form-label">{{ input.label }}</label>
+            {% endif %}
+            {{ input }}
+        </div>
+    {% endfor %}
+    <input type="submit" value="Save" class="btn btn-primary" />
+</form>
+{% endblock content %}
