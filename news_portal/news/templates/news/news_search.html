@@ -35,7 +35,7 @@ News
                     <td class="article__right-cell">{{ news_article.author|censor }}</td>
                 </tr>
             </table>
-            <p class="article__text">{{ news_article.text|censor|truncatechars:20 }}</p>
+            <p class="article__text">{{ news_article.text|truncatewords:10|censor|truncatechars:20 }}</p>
             <hr />
         </div>
         {% endfor %}
