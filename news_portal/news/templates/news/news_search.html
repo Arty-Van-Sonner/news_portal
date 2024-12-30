@@ -28,8 +28,22 @@ News
     {% if news %}
         {% for news_article in news %}
         <div class="article">
-            <a href="/news/{{news_article.id}}/"><h3 class="article__title">{{ news_article.title|censor }} (rating {{news_article.rating|censor }})</h3></a>
+            <a href="{% url 'news_detail' news_article.id %}/"><h3 class="article__title">{{ news_article.title|censor }} (rating {{news_article.rating|censor }})</h3></a>
             <table class="article__table">
+                {% if perms.news.change_post or perms.news.delete_post %}
+                <tr>
+                    <td class="article__left-cell">
+                        {% if perms.news.change_post %}
+                            <a href="{% url 'post_update' news_article.id %}" class="btn btn-primary">Change</a>
+                        {% endif %}
+                    </td>
+                    <td class="article__right-cell">
+                        {% if perms.news.delete_post %}
+                            <a href="{% url 'post_delete' news_article.id %}" class="btn btn-primary">Delete</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
                 <tr>
                     <td class="article__left-cell">{{ news_article.creation_date|date:'d.m.Y' }}</td>
                     <td class="article__right-cell">{{ news_article.author|censor }}</td>

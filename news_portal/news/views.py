@@ -1,3 +1,5 @@
+from django.contrib.auth.mixins import PermissionRequiredMixin
+
 from django.shortcuts import render
 
 from django.urls import reverse_lazy
@@ -33,6 +35,8 @@ class NewsList(ListView):
     def get_context_data(self, **kwargs):
        context = super().get_context_data(**kwargs)
        context['form_title'] = 'News'
+       context['post_update'] = 'news_update'
+       context['post_delete'] = 'news_delete'
        context['posts_list_is_empty'] = 'There is no news'
        return context
 
@@ -52,6 +56,8 @@ class ArticleList(ListView):
     def get_context_data(self, **kwargs):
        context = super().get_context_data(**kwargs)
        context['form_title'] = 'Articles'
+       context['post_update'] = 'articles_update'
+       context['post_delete'] = 'articles_delete'
        context['posts_list_is_empty'] = 'There is no articles'
        return context
 
@@ -103,7 +109,9 @@ class PostSearch(NewsSearch):
     def get_queryset(self):
         return super().processing_queryset(filter_class = PostFilter)
 
-class NewsCreate(CreateView):
+class NewsCreate(PermissionRequiredMixin, CreateView):
+    permission_required = ('news.add_post',)
+    raise_exception = True
     # Указываем нашу разработанную форму
     form_class = NewsForm
     # модель товаров
@@ -117,7 +125,9 @@ class NewsCreate(CreateView):
         context['form_title'] = 'Create new news'
         return context
 
-class ArticleCreate(CreateView):
+class ArticleCreate(PermissionRequiredMixin, CreateView):
+    permission_required = ('news.add_post',)
+    raise_exception = True
     # Указываем нашу разработанную форму
     form_class = ArticleForm
     # модель товаров
@@ -132,7 +142,9 @@ class ArticleCreate(CreateView):
         return context
 
 # Добавляем представление для изменения товара.
-class PostUpdate(UpdateView):
+class PostUpdate(PermissionRequiredMixin, UpdateView):
+    permission_required = ('news.change_post',)
+    raise_exception = True
     form_class = PostForm
     model = Post
     template_name = 'news/post_edit.html'
@@ -144,7 +156,9 @@ class PostUpdate(UpdateView):
         return context
 
 # Представление удаляющее товар.
-class PostDelete(DeleteView):
+class PostDelete(PermissionRequiredMixin, DeleteView):
+    permission_required = ('news.delete_post',)
+    raise_exception = True
     model = Post
     template_name = 'news/post_delete.html'
     success_url = reverse_lazy('news_list')
