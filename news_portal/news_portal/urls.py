@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from news.views import subscriptions
+
 
 
 urlpatterns = [
@@ -23,5 +25,7 @@ urlpatterns = [
     # path('accounts/', include('django.contrib.auth.urls')),
     path("accounts/", include("accounts.urls")),
     path("accounts/", include("allauth.urls")),
+    
+    path("subscriptions/", subscriptions, name = 'news_subscriptions'),
     path('', include('news.urls')),
 ]

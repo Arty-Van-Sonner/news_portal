@@ -1,7 +1,8 @@
-from django.forms import ModelForm, CharField, ModelChoiceField, ChoiceField
-from django.forms.widgets import Textarea, TextInput, Select
+from django.forms import ModelForm, CharField, ModelChoiceField, ChoiceField, ModelMultipleChoiceField
+from django.forms.widgets import Textarea, TextInput, Select, SelectMultiple
 from django.core.exceptions import ValidationError
 from .models import *
+from django.db.models.query import QuerySet
 
 class PostForm(ModelForm):
     title = CharField(
@@ -20,9 +21,9 @@ class PostForm(ModelForm):
             }
         ),
     )
-    category = ModelChoiceField(
+    category = ModelMultipleChoiceField(
         queryset = Category.objects.all(),
-        widget = Select(
+        widget = SelectMultiple(
             attrs={ 
                 'class': 'form-select', 
             }
@@ -47,7 +48,7 @@ class PostForm(ModelForm):
 
     def clean_category(self):
         category = self.cleaned_data["category"]
-        if type(category) != int and type(category) != Category:
+        if type(category) != QuerySet:
             raise ValidationError(
                 "Category must be filled!"
             )

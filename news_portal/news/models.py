@@ -3,6 +3,8 @@ from django.db import models
 from django.contrib.auth.models import User
 
 from django.urls import reverse
+
+from .exception import SubscribeException
 # import SQLAlchemy
 
 # Create your models here.
@@ -67,7 +69,7 @@ class Post(models.Model):
     author = models.ForeignKey(Author, on_delete = models.CASCADE, db_column = 'author_id', name = 'author')
     type = models.CharField(max_length = 1, choices = POST_TYPES, db_column = 'type', name = 'type')
     creation_date = models.DateTimeField(auto_now_add = True, db_column = 'creation_date', name = 'creation_date')
-    category = models.ForeignKey(Category, on_delete = models.CASCADE, db_column = 'category_id', name = 'category')
+    category = models.ManyToManyField(Category, db_column = 'category_id', name = 'category')
     title = models.CharField(max_length = 255, db_column = 'title', name = 'title')
     text = models.TextField(db_column = 'text', name = 'text')
     rating = models.IntegerField(default = 0, db_column = 'rating', name = 'rating')
@@ -136,3 +138,44 @@ class Comment(models.Model):
 
 list_of_types_with_likes.append(Post)
 list_of_types_with_likes.append(Comment)
+
+class Subscriber(models.Model):
+    '''
+    
+    '''
+    user = models.ForeignKey(User, on_delete = models.CASCADE, db_column = 'user_id', name = 'user')
+    category = models.ForeignKey(Category, on_delete = models.CASCADE, db_column = 'category_id', name = 'category')
+
+    @staticmethod
+    def subscribe_to_category(user, category, **kwargs):
+        subscriptions = Subscriber.search_subscription(user, category)
+        subscription = subscriptions[0]
+        subscription.category.add(category)
+        return subscription 
+        
+
+    @staticmethod
+    def unsubscribe_from_category(user, category, **kwargs):
+        subscriptions = Subscriber.search_subscription(user, category)
+        if len(subscriptions) == 0:
+            SubscribeException('')
+        subscription = subscriptions[0]
+        subscription.category.remove(category)
+        return subscription
+
+    @staticmethod
+    def search_subscription(user, category, **kwargs):
+        subscriptions = Subscriber.objects.filter(user = user).order_by('id')
+        subscriptions = Subscriber.check_subscription_by_user(user = user, subscriptions = subscriptions)
+        return subscriptions
+
+    @staticmethod
+    def check_subscription_by_user(user, subscriptions):
+        if len(subscriptions) == 1:
+            return subscriptions
+        elif len(subscriptions) == 0:
+            Subscriber.objects.create(user = user)
+            return Subscriber.objects.filter(user = user)
+        else:
+            for i in range(1, len(subscriptions)):
+                Subscriber.objects.delete(subscriptions[-i].id)

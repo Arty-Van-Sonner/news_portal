@@ -5,6 +5,8 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.http.request import QueryDict
 
+from django.template.loader import render_to_string
+
 from django.views.generic import *
 from .models import *
 from django.shortcuts import get_object_or_404
@@ -15,21 +17,34 @@ from .filters import *
 import inspect
 from pathlib import Path
 
+from django.db.models import Exists, OuterRef
+from django.views.decorators.csrf import csrf_protect
+from django.contrib.auth.decorators import login_required
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # from django.forms.widgets import 
 
-class NewsList(ListView):
+class PostList(ListView):
     '''
-    
     '''
     model = Post
     context_object_name = 'post'
     template_name = 'news/post_list.html'
     paginate_by = 10
+    ordering = ['-creation_date']
+
+    def get_queryset(self, queryset):
+        queryset = queryset.order_by(*self.ordering)
+        return queryset
+
+class NewsList(PostList):
+    '''
+    
+    '''
 
     def get_queryset(self):
-        queryset = Post.objects.filter(type = 'N')
+        queryset = super().get_queryset(Post.objects.filter(type = 'N'))
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -40,17 +55,13 @@ class NewsList(ListView):
        context['posts_list_is_empty'] = 'There is no news'
        return context
 
-class ArticleList(ListView):
+class ArticleList(PostList):
     '''
     
     '''
-    model = Post
-    context_object_name = 'post'
-    template_name = 'news/post_list.html'
-    paginate_by = 10
 
     def get_queryset(self):
-        queryset = Post.objects.filter(type = 'A')
+        queryset = super().get_queryset(Post.objects.filter(type = 'A'))
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -167,3 +178,33 @@ class PostDelete(PermissionRequiredMixin, DeleteView):
         context = super().get_context_data(**kwargs)
         context['form_title'] = f'Delete {context["post"].title}?'
         return context
+
+@login_required
+@csrf_protect
+def subscriptions(request):
+    if request.method == 'POST':
+        category_id = request.POST.get('category_id')
+        category = Category.objects.get(id = category_id)
+        user = request.user
+        action = request.POST.get('action')
+
+        result = None
+        if action == 'subscribe':
+            result = Subscriber.subscribe_to_category(user = user, category = category)
+        elif action == 'unsubscribe':
+            result = Subscriber.unsubscribe_from_category(user = user, category = category)
+
+    user_subscriptions = Category.objects.annotate(
+        user_subscribed=Exists(
+            Subscriber.objects.filter(
+                user=request.user,
+                category=OuterRef('pk'),
+            )
+        )
+    ).order_by('name')
+
+    return render(
+        request,
+        'subscriptions.html',
+        {'categories': user_subscriptions},
+    ) 
