@@ -9,24 +9,27 @@ from news.models import *
 @receiver(m2m_changed)
 def subscription_event(instance: Post, **kwargs):
     if kwargs['action'] == 'post_add' and type(instance) == Post:
-        categories = instance.category.all()
-        list_of_users = set()
-        for category in categories:
-            # print()
-            # print('category:', category)
-            # print()
-            users = Subscriber.objects.filter(category__id__in = category.id) #, user__email__)
-            for user in users:
-                list_of_users.add(user)
-        list_of_users = list(list_of_users)   
-        print()
-        print('kwargs[\'action\']', kwargs['action'])
-        print()
-        print('list_of_users', list_of_users)
-        print()
-    # if kwargs['action'] == 'post_add':
-        # print()
-        # print('sender', sender)
-        # print()
-        # print('instance', instance)
-        # print()
+        # categories = instance.category.all()
+
+        emails = User.objects.filter(
+            Q(subscriber__category__in = instance.category.all().values_list('id')) & ~Q(email = '') & Q(email__isnull = False)
+            ).values_list('email', flat=True)
+       
+        post_type = 'news' if instance.type == 'N' else 'article'
+        subject = f'New {post_type} in category {instance.category}'
+        text_content = (
+        f'Title: {instance.title}\n'
+        f'Preview: {instance.preview()}\n\n'
+        f'Link to the {post_type}: http://127.0.0.1:8000{instance.get_absolute_url()}'
+        ) 
+
+        html_content = (
+            f'Title: {instance.title}<br>'
+            f'Preview: {instance.preview()}<br><br>'
+            f'<a href="http://127.0.0.1:8000{instance.get_absolute_url()}">'
+            f'Link to the {post_type}'
+        )
+        for email in emails:
+            msg = EmailMultiAlternatives(subject, text_content, None, [email])
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()

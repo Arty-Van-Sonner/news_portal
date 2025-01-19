@@ -1,5 +1,6 @@
 from django import template
 from censor.censor import Censor
+from news.models import Post
 
 register = template.Library()
 
@@ -13,3 +14,7 @@ def censor(value):
 @register.filter
 def lower(value):
     return str(value).lower()
+
+@register.filter
+def get_absolute_url(post: Post):
+    return post.get_absolute_url() 

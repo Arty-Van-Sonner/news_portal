@@ -1,0 +1,31 @@
+{% extends 'default_for_mail.html' %}
+
+{% load custom_filters %}
+{% load custom_tags %}
+
+{% block title %}
+New posts ({{ category }})
+{% endblock title %}
+
+{% block h1 %}
+New posts ({{ category }})
+{% endblock h1 %}
+
+{% block content %}
+    <hr>
+    {% if posts %}
+        {% for post in posts %}
+        <div class="article">
+            <a href="http://127.0.0.1:8000{{ post|get_absolute_url }}"><h3 class="article__title">{{ post.title|censor }} (rating {{post.rating|censor }})</h3></a>
+            <table class="article__table">
+                <tr>
+                    <td class="article__left-cell">{{ post.creation_date|date:'d.m.Y' }}</td>
+                    <td class="article__right-cell">{{ post.author|censor }}</td>
+                </tr>
+            </table>
+            <p class="article__text">{{ post.text|truncatewords:10|censor|truncatechars:20 }}</p>
+            <hr />
+        </div>
+        {% endfor %}
+    {% endif %}
+{% endblock content %}

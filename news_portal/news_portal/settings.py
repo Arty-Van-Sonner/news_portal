@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+
+from dotenv import load_dotenv 
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -53,6 +57,9 @@ INSTALLED_APPS = [
     'django_apscheduler',
 
     'sslserver',
+
+    # 'django_mailcss',
+    'mailing',
 ]
 
 MIDDLEWARE = [
@@ -161,14 +168,14 @@ ACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_FORMS = {"signup": "accounts.forms.CustomSignupForm"}
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.yandex.ru'
-EMAIL_PORT = 465
-EMAIL_HOST_USER = "example@yandex.ru"
-EMAIL_HOST_PASSWORD = "iliezvcovrxqizez"
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
 
-DEFAULT_FROM_EMAIL = "example@yandex.ru"
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
 
 SERVER_EMAIL = "example@yandex.ru"
 
@@ -185,5 +192,21 @@ EMAIL_SUBJECT_PREFIX = '[Django]'
 
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 
+SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT') 
+
+SECURE_HSTS_SECONDS = os.getenv('SECURE_HSTS_SECONDS')
+
+SECURE_HSTS_INCLUDE_SUBDOMAINS = os.getenv('SECURE_HSTS_INCLUDE_SUBDOMAINS')
+
+SECURE_HSTS_PRELOAD = os.getenv('SECURE_HSTS_PRELOAD')
+
+SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE')
+
+CSRF_COOKIE_SECURE = os.getenv('CSRF_COOKIE_SECURE')
+
+SECURE_BROWSER_XSS_FILTER = os.getenv('SECURE_BROWSER_XSS_FILTER')
+
+SECURE_CONTENT_TYPE_NOSNIFF = os.getenv('SECURE_CONTENT_TYPE_NOSNIFF')
+
 if DEBUG:
-    EMAIL_BACKEND = 'django.core.mail.backends.consol.EmailBackend'
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
