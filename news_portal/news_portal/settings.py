@@ -60,6 +60,7 @@ INSTALLED_APPS = [
 
     # 'django_mailcss',
     'mailing',
+    'celery',
 ]
 
 MIDDLEWARE = [
@@ -207,6 +208,12 @@ ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 # SECURE_BROWSER_XSS_FILTER = os.getenv('SECURE_BROWSER_XSS_FILTER')
 
 # SECURE_CONTENT_TYPE_NOSNIFF = os.getenv('SECURE_CONTENT_TYPE_NOSNIFF')
+
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379' # redis://логин:пароль@endpoint:port
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
 
 if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
