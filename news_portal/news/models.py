@@ -149,6 +149,11 @@ class Subscriber(models.Model):
     user = models.ForeignKey(User, on_delete = models.CASCADE, db_column = 'user_id', name = 'user')
     category = models.ForeignKey(Category, on_delete = models.CASCADE, db_column = 'category_id', name = 'category', null = True)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'category'], name='unique appversion')
+        ]
+
     @staticmethod
     def subscribe_to_category(user, category, **kwargs):
         subscriptions = Subscriber.search_subscription(user, category)
@@ -167,36 +172,36 @@ class Subscriber(models.Model):
     @staticmethod
     def search_subscription(user, category, **kwargs):
         subscriptions = Subscriber.objects.filter(user = user, category = category)
-        Subscriber.check_recurring_subscription(subscriptions = subscriptions)
+        # Subscriber.check_recurring_subscription(subscriptions = subscriptions)
         return subscriptions
         
-    @staticmethod
-    def check_recurring_subscription(**kwargs: dict):
-        subscriptions = []
-        kwargs_keys = kwargs.keys()
-        if 'subscriptions' in kwargs_keys:
-            subscriptions = kwargs['subscriptions']
-        elif 'user' in kwargs_keys \
-            and 'category' in kwargs_keys:
-            subscriptions = Subscriber.objects.filter(user = kwargs['user'], category = kwargs['categoty'])
-        else:
-            SubscribeException('')
+    # @staticmethod
+    # def check_recurring_subscription(**kwargs: dict):
+    #     subscriptions = []
+    #     kwargs_keys = kwargs.keys()
+    #     if 'subscriptions' in kwargs_keys:
+    #         subscriptions = kwargs['subscriptions']
+    #     elif 'user' in kwargs_keys \
+    #         and 'category' in kwargs_keys:
+    #         subscriptions = Subscriber.objects.filter(user = kwargs['user'], category = kwargs['categoty'])
+    #     else:
+    #         SubscribeException('')
 
-        were_recurring = False
+    #     were_recurring = False
 
-        if len(subscriptions) > 1:
-            i = 0
-            delete_list = []
-            for subscription in subscriptions:
-                if i > 0:
-                    delete_list.append(subscription.id)
-                i += 1
+    #     if len(subscriptions) > 1:
+    #         i = 0
+    #         delete_list = []
+    #         for subscription in subscriptions:
+    #             if i > 0:
+    #                 delete_list.append(subscription.id)
+    #             i += 1
             
-            if len(delete_list) > 0:
-                for i in range(1, len(delete_list) + 1):
-                    Subscriber.objects.delete(delete_list[-i])
-                were_recurring = True
-        return were_recurring
+    #         if len(delete_list) > 0:
+    #             for i in range(1, len(delete_list) + 1):
+    #                 Subscriber.objects.delete(delete_list[-i])
+    #             were_recurring = True
+    #     return were_recurring
 
     def __str__(self) -> str:
         return f'{self.user} in {self.category}'
@@ -212,11 +217,20 @@ class Mailing(models.Model):
         return Mailing.objects.create(uuid = uuid, name = name)
 
     @staticmethod
-    def get_sending_out_new_posts_mailing():
+    def get_sending_out_new_posts_mailing(**kwargs):
         uuid = '8431c7f4-a015-11ea-3c86-0a484d440994'
+        return Mailing.get_mailing_by_uuid(uuid, name = 'Sending out new posts')
+
+    @staticmethod
+    def get_sending_out_new_posts_mailing_celery(**kwargs):
+        uuid = '8431c7f4-a015-33ea-3c88-0a784d770994'
+        return Mailing.get_mailing_by_uuid(uuid, name = 'Sending out new posts (Celery)') 
+
+    @staticmethod
+    def get_mailing_by_uuid(uuid, name = 'mailing', **kwargs):
         mailings = Mailing.objects.filter(uuid = uuid)
         if len(mailings) == 0:
-            Mailing.create_new_mailing(uuid = uuid, name = 'Sending out new posts')
+            Mailing.create_new_mailing(uuid = uuid, name = name)
             mailings = Mailing.objects.filter(uuid = uuid)
         return mailings[0]
 
@@ -230,3 +244,6 @@ class MailingLog(models.Model):
     mailing = models.ForeignKey(Mailing, on_delete = models.CASCADE, db_column = 'mailing', name = 'mailing')
     posts = models.ManyToManyField(Post, db_column = 'posts', name = 'posts', blank=True)
     description = models.TextField(db_column = 'description', name = 'description', null = True)
+
+    def __str__(self) -> str:
+        return f'[{self.datetime.strftime("%d.%m.%Y %H:%M:%S")}] {self.mailing}'

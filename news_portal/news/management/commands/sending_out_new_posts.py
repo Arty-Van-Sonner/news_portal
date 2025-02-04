@@ -28,7 +28,7 @@ def get_mytimezone_date(original_datetime, **kwargs):
     return timzone_datetime.date()
 
 def sending_out_new_posts(*args, **kwargs):
-    sending_out_new_posts_mailing = Mailing.get_sending_out_new_posts_mailing()
+    sending_out_new_posts_mailing = kwargs['mailing']
     begin_date = MailingLog.objects.filter(mailing = sending_out_new_posts_mailing).values_list('datetime', flat = True).order_by('-datetime').first()
     if begin_date is None:
         begin_date = datetime(year = 2000, month = 1, day = 1, tzinfo = timezone(settings.TIME_ZONE))
@@ -75,7 +75,10 @@ def sending_out_new_posts(*args, **kwargs):
     description = f'#[{datetime.now()}] Sending out new posts\n##Categories:\n•	' + "\n•	".join([category["str_category"] for category in list_names_of_categories]) + '\n' + posts_by_category_description
     mailing_log = MailingLog.objects.create(mailing = sending_out_new_posts_mailing, description = description)
     for post in posts:
-        mailing_log.posts.add(post)
+        try:
+            mailing_log.posts.add(post)
+        except Exception:
+            pass
     
 
 class Command(BaseCommand):
@@ -87,6 +90,9 @@ class Command(BaseCommand):
 
         scheduler.add_job(
             sending_out_new_posts,
+            kwargs = {
+                'mailing': Mailing.get_sending_out_new_posts_mailing(),    
+            },
             # trigger=CronTrigger(second = "*/10"),
             # trigger=CronTrigger(minute = "*/1"),
             trigger=CronTrigger(hour = '18', minute = '00', day_of_week = '4'),
