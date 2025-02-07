@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 
 from .exception import SubscribeException
+
+from django.core.cache import cache
 # import SQLAlchemy
 
 # Create your models here.
@@ -104,6 +106,22 @@ class Post(models.Model):
         else:
             return reverse('news_detail', args=[str(self.id)])
 
+    def save(self, *args, **kwargs):
+        print()
+        print('save')
+        print()
+        super().save(*args, **kwargs) # сначала вызываем метод родителя, чтобы объект сохранился
+        cache.delete(f'post-{self.pk}') # затем удаляем его из кэша, чтобы сбросить его
+
+    def delete(self, using, keep_parents):
+        print()
+        print('delete')
+        print()
+        pk = self.pk
+        result = super().delete(using, keep_parents)
+        cache.delete(f'post-{pk}')
+        return result
+
     def __str__(self) -> str:
         return f'{self.title} ({self.preview()}) [{self.id}]'
 
@@ -174,34 +192,6 @@ class Subscriber(models.Model):
         subscriptions = Subscriber.objects.filter(user = user, category = category)
         # Subscriber.check_recurring_subscription(subscriptions = subscriptions)
         return subscriptions
-        
-    # @staticmethod
-    # def check_recurring_subscription(**kwargs: dict):
-    #     subscriptions = []
-    #     kwargs_keys = kwargs.keys()
-    #     if 'subscriptions' in kwargs_keys:
-    #         subscriptions = kwargs['subscriptions']
-    #     elif 'user' in kwargs_keys \
-    #         and 'category' in kwargs_keys:
-    #         subscriptions = Subscriber.objects.filter(user = kwargs['user'], category = kwargs['categoty'])
-    #     else:
-    #         SubscribeException('')
-
-    #     were_recurring = False
-
-    #     if len(subscriptions) > 1:
-    #         i = 0
-    #         delete_list = []
-    #         for subscription in subscriptions:
-    #             if i > 0:
-    #                 delete_list.append(subscription.id)
-    #             i += 1
-            
-    #         if len(delete_list) > 0:
-    #             for i in range(1, len(delete_list) + 1):
-    #                 Subscriber.objects.delete(delete_list[-i])
-    #             were_recurring = True
-    #     return were_recurring
 
     def __str__(self) -> str:
         return f'{self.user} in {self.category}'

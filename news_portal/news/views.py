@@ -21,6 +21,8 @@ from django.db.models import Exists, OuterRef
 from django.views.decorators.csrf import csrf_protect
 from django.contrib.auth.decorators import login_required
 
+from django.core.cache import cache
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # from django.forms.widgets import 
@@ -76,6 +78,15 @@ class PostDetail(DetailView):
     model = Post
     context_object_name = 'post'
     template_name = 'news/post_detail.html'
+
+    def get_object(self, *args, **kwargs): # переопределяем метод получения объекта, как ни странно
+        obj = cache.get(f'post-{self.kwargs["pk"]}', None) # кэш очень похож на словарь, и метод get действует так же. Он забирает значение по ключу, если его нет, то забирает None.
+ 
+        # если объекта нет в кэше, то получаем его и записываем в кэш
+        if not obj:
+            obj = super().get_object(queryset=self.queryset)
+            cache.set(f'post-{self.kwargs["pk"]}', obj)
+        return obj
 
 class NewsSearch(ListView):
     model = Post
