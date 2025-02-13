@@ -1,12 +1,14 @@
 from celery import shared_task
-import time
+# import time
 
-from .models import *
 from django.db.models import Q
 from django.core.mail import EmailMultiAlternatives
-from django.dispatch import receiver
+# from django.dispatch import receiver
 from news.management.commands.sending_out_new_posts import sending_out_new_posts
-from news_portal.celery import app
+# from news_portal.celery import app
+
+from .models import *
+
 
 @shared_task
 def ts_subscription_event(instance, **kwargs):

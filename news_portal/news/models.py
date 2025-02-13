@@ -20,11 +20,21 @@ class CustomUser(models.Model):
         (female, 'female (woman)'),
     ]
     
-    user = models.ForeignKey(User, on_delete = models.CASCADE, unique = True, db_column = 'user_id', name = 'user')
+    user = models.ForeignKey(
+        User, 
+        on_delete = models.CASCADE, 
+        unique = True, db_column = 'user_id', 
+        name = 'user',
+    )
     name = models.CharField(max_length = 128, db_column = 'name', name = 'name')
     family = models.CharField(max_length = 128, db_column = 'family', name = 'family')
     age = models.IntegerField(default = 0, db_column = 'age', name = 'age')
-    gender = models.CharField(max_length = 1, choices = GENDERS, db_column = 'gender', name = 'gender')
+    gender = models.CharField(
+        max_length = 1, 
+        choices = GENDERS, 
+        db_column = 'gender', 
+        name = 'gender',
+    )
 
 class Author(models.Model):
     custom_user = models.ForeignKey(CustomUser, on_delete = models.CASCADE, db_column = 'custom_user_id', name = 'custom_user')
