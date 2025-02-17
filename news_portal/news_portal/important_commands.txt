@@ -1,0 +1,40 @@
+# dumpdata
+python -Xutf8 manage.py dumpdata --format=json -o mydata.json
+python -Xutf8 manage.py dumpdata --format=xml -o mydata.xml
+or
+python -Xutf8 manage.py dumpdata --indent 2 --format=json -o mydata.json
+python -Xutf8 manage.py dumpdata --indent 2 --format=xml -o mydata.xml
+better
+python -Xutf8 manage.py dumpdata --indent 2 --exclude contenttypes --format=json -o mydata.json
+
+python -Xutf8 manage.py dumpdata app --format=json -o mydata.json
+
+## Команда для создания файла дампа с данными из таблицы по модели Post приложения app:
+python -Xutf8 manage.py dumpdata app.post --format=json -o mydata.json
+
+# loaddata
+python manage.py loaddata mydata.json
+python manage.py loaddata mydata.xml
+
+# runserver
+django-admin runserver --pythonpath=. --settings="project.settings"
+python manage.py runserver
+
+# startapp
+python manage.py startapp myapp .
+django-admin startapp app apps/app
+
+new project from template
+django-admin startproject --template=project_name tutorial
+
+# user
+python manage.py createsuperuser
+python manage.py changepassword <имя пользователя>
+
+# makemigrations 
+python manage.py makemigrations [<имя приложения>]
+python manage.py migrate
+python manage.py showmigrations
+
+# flush (clean database) 
+python manage.py flush
