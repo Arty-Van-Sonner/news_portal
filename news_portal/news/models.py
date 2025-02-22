@@ -7,7 +7,7 @@ from django.urls import reverse
 from .exception import SubscribeException
 
 from django.core.cache import cache
-# import SQLAlchemy
+import SQLAlchemy
 
 # Create your models here.
 list_of_types_with_likes = []
