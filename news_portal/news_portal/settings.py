@@ -36,6 +36,8 @@ SITE_ID = 1
 # Application definition
 
 INSTALLED_APPS = [
+    'modeltranslation', # обязательно впишите его перед админом
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -61,11 +63,15 @@ INSTALLED_APPS = [
     # 'django_mailcss',
     'mailing',
     'celery',
+    'basic',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+
+    'django.middleware.locale.LocaleMiddleware',
+    
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -76,6 +82,10 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'news_portal.urls'
+
+LOCALE_PATH = [
+    os.path.join(BASE_DIR, 'locale')
+]
 
 LOGIN_REDIRECT_URL = "/news/"
 ACCOUNT_LOGOUT_REDIRECT_URL = '/accounts/logout/'
@@ -121,7 +131,7 @@ DATABASES = {
         'USER': 'postgres',
         'PASSWORD': '',
         'HOST': 'localhost',
-        'PORT': '5432',
+        'PORT': '   ',
     },
 }
 
@@ -148,6 +158,11 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
+
+LANGUAGES = [
+    ('en-us', 'English'),
+    ('ru', 'Русский')
+]
 
 # TIME_ZONE = 'UTC'
 TIME_ZONE = 'Europe/Belgrade'

@@ -7,6 +7,8 @@ from django.urls import reverse
 from .exception import SubscribeException
 
 from django.core.cache import cache
+
+from django.contrib.postgres.fields import ArrayField
 # import SQLAlchemy
 
 # Create your models here.
