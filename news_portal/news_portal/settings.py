@@ -63,7 +63,7 @@ INSTALLED_APPS = [
     # 'django_mailcss',
     'mailing',
     'celery',
-    'basic',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
